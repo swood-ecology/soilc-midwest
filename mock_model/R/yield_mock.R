@@ -19,34 +19,21 @@ model_data <- model_data[which(is.na(model_data$Yield.bu.acre)==FALSE),]
 ## Simplify variable names
 names(model_data)[c(5,9)] <- c('county','yield')
 
-# ## Randomly sample 100 observations from the data
-# md_random <- model_data[sample(nrow(model_data), 100), ]
-# ## Calculate coefficient of variation by county
-# cv <- function(x){
-#   return(sd(x,na.rm=T)/mean(x,na.rm=T))
-# }
-# md_rand_cv <- aggregate(Yield.bu.acre~County.name,data=md_random,cv)
-# names(md_rand_cv) <- c("county","cv")
-# ## Plot data
-# boxplot(cv~county,data=md_rand_cv)
-
 # PREPARE DATA FOR STAN
-## Subset for one county
-md_onecounty <- filter(model_data, county=="PUTNAM")
 ## Weird alternating high and low numbers. Take only high
-md_onecounty <- filter(md_onecounty, yield > 200)
+md_onecounty <- filter(md_onecounty, yield < 200)
 
 # ## Generate county-level dummies and merge back original data
-# md_dummy <- model_data[,c('county','yield')] %>% 
-#               model.matrix(yield ~ ., .) %>% 
-#               cbind(model_data,.)
-# ## Subset data needed for analysis
-# md_dummy <- select(md_dummy, yield,Year,countyALEXANDER:countyWOODFORD)
+md_dummy <- model_data[,c('county','yield')] %>%
+              model.matrix(yield ~ ., .) %>%
+              cbind(model_data,.)
+## Subset data needed for analysis
+md_dummy <- select(md_dummy, yield,Year,countyALEXANDER:countyWOODFORD)
 
 ## List data to pass to Stan
 dat_list <- list(
-                    N=nrow(md_onecounty),
-                    yield=md_onecounty$yield
+                    N=nrow(md_dummy),
+                    yield=md_dummy$yield
 )
 
 # CALL STAN MODEL
