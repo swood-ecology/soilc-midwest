@@ -1,3 +1,6 @@
 *.txt
+<<<<<<< HEAD
 /data
+=======
+>>>>>>> f4c7e68408ae032c03eb2b581431796780bb81bd
 .Rproj.user
